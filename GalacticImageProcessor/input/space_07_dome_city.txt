@@ -1,0 +1,5 @@
+IMAGE=space_07_dome_city.png
+LOCATION=New Horizon Dome City
+COORDINATES=LAT +42.781; LON +16.209
+CAPTURED_AT=2187-04-23T08:33:17Z
+DESCRIPTION=Colonial city protected by transparent atmospheric domes

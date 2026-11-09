@@ -1,0 +1,5 @@
+IMAGE=space_06_nebula_spacecraft.png
+LOCATION=Aurora Nebula Passage
+COORDINATES=RA 05h 35m 17s; DEC -05d 23m 28s
+CAPTURED_AT=2187-04-22T11:02:39Z
+DESCRIPTION=Exploration spacecraft travelling through a coloured nebula

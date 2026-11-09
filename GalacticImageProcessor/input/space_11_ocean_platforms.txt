@@ -1,0 +1,5 @@
+IMAGE=space_11_ocean_platforms.png
+LOCATION=Pelagos Ocean Colony
+COORDINATES=LAT +03.552; LON -148.337
+CAPTURED_AT=2187-04-27T12:20:56Z
+DESCRIPTION=Floating research platforms on an extraterrestrial ocean

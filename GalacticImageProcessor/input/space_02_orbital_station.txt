@@ -1,0 +1,5 @@
+IMAGE=space_02_orbital_station.png
+LOCATION=Helios Research Station
+COORDINATES=SECTOR H-14; X +1842; Y -0931; Z +4420
+CAPTURED_AT=2187-04-18T06:14:43Z
+DESCRIPTION=Orbital station illuminated by a nearby blue star

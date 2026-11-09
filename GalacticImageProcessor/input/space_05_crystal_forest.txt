@@ -1,0 +1,5 @@
+IMAGE=space_05_crystal_forest.png
+LOCATION=Crystal Forest of Nerys IV
+COORDINATES=LAT -11.308; LON +124.772
+CAPTURED_AT=2187-04-21T19:45:26Z
+DESCRIPTION=Luminous mineral formations beneath a violet sky

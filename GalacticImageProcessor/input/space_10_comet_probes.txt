@@ -1,0 +1,5 @@
+IMAGE=space_10_comet_probes.png
+LOCATION=Tail of Comet Rhea 7
+COORDINATES=RA 12h 26m 31s; DEC +08d 12m 04s
+CAPTURED_AT=2187-04-26T04:49:32Z
+DESCRIPTION=Three probes collecting particles from a comet tail

@@ -1,0 +1,5 @@
+IMAGE=space_08_icy_moon.png
+LOCATION=Southern Ridge of Eos Moon
+COORDINATES=LAT -71.442; LON +33.981
+CAPTURED_AT=2187-04-24T16:58:44Z
+DESCRIPTION=Icy moon surface with a gas giant on the horizon

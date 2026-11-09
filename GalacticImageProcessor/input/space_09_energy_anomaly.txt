@@ -1,0 +1,5 @@
+IMAGE=space_09_energy_anomaly.png
+LOCATION=Typhon Energy Anomaly
+COORDINATES=SECTOR T-22; X +9081; Y +0154; Z -3310
+CAPTURED_AT=2187-04-25T23:11:09Z
+DESCRIPTION=Unstable energy vortex recorded by long range sensors

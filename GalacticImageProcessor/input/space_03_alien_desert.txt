@@ -1,0 +1,5 @@
+IMAGE=space_03_alien_desert.png
+LOCATION=Vulcanis Desert Plateau
+COORDINATES=LAT +18.422; LON -77.105
+CAPTURED_AT=2187-04-19T14:08:05Z
+DESCRIPTION=Rock formations and distant planets above an alien desert

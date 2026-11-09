@@ -1,0 +1,5 @@
+IMAGE=space_01_ringed_planet.png
+LOCATION=Orbit of Kepler 186 f
+COORDINATES=RA 19h 54m 36s; DEC +43d 57m 18s
+CAPTURED_AT=2187-04-17T21:36:12Z
+DESCRIPTION=Ringed planet observed from a survey vessel

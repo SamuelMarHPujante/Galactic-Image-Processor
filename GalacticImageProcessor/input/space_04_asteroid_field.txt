@@ -1,0 +1,5 @@
+IMAGE=space_04_asteroid_field.png
+LOCATION=Kessara Asteroid Belt
+COORDINATES=SECTOR K-09; X -0614; Y +3720; Z +1188
+CAPTURED_AT=2187-04-20T03:27:51Z
+DESCRIPTION=Dense asteroid field crossed by a reconnaissance craft

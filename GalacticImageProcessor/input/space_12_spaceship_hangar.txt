@@ -1,0 +1,5 @@
+IMAGE=space_12_spaceship_hangar.png
+LOCATION=Daedalus Fleet Hangar
+COORDINATES=SECTOR D-03; X -2450; Y -1844; Z +0672
+CAPTURED_AT=2187-04-28T18:07:41Z
+DESCRIPTION=Maintenance hangar containing several exploration vessels
