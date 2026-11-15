@@ -1,9 +1,12 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -67,14 +70,16 @@ public class Main {
 
     private static List<Path> findImages(Path directory) throws IOException {
         List<Path> images = new ArrayList<>();
-
-        /*
-         * TODO: use Files.list(directory), keep regular PNG/JPG/JPEG files,
-         * sort them by filename and add them to images.
-         * For every image, also check that input/originalBaseName.txt exists.
-         * Use try-with-resources because Files.list() returns a Stream.
-         */
-
+        try (Stream<Path> paths = Files.list(directory)) {
+            images = paths
+                    .filter(Files::isRegularFile)
+                    .filter(i -> i.getFileName().toString().toLowerCase().endsWith(".png") ||
+                            i.getFileName().toString().toLowerCase().endsWith(".jpg") ||
+                            i.getFileName().toString().toLowerCase().endsWith(".jpeg"))
+                    .filter(i -> Files.exists(Paths.get("input/" + i.getFileName() + ".txt")))
+                    .sorted()
+                    .toList();
+        }
         return images;
     }
 
