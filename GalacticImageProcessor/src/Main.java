@@ -12,6 +12,7 @@ public class Main {
 
     private static final Path INPUT_DIRECTORY = Path.of("input");
     private static final Path OUTPUT_DIRECTORY = Path.of("output");
+    private static final List<String> VALID_EXTENSIONS = List.of(".png", ".jpg", ".jpeg");
 
     /*
      * This is the ONE result list used by the five execution modes.
@@ -73,9 +74,10 @@ public class Main {
         try (Stream<Path> paths = Files.list(directory)) {
             images = paths
                     .filter(Files::isRegularFile)
-                    .filter(i -> i.getFileName().toString().toLowerCase().endsWith(".png") ||
-                            i.getFileName().toString().toLowerCase().endsWith(".jpg") ||
-                            i.getFileName().toString().toLowerCase().endsWith(".jpeg"))
+                    .filter(i -> {
+                        String fileName = i.getFileName().toString().toLowerCase();
+                        return VALID_EXTENSIONS.stream().anyMatch(fileName::endsWith);
+                    })
                     .filter(i -> Files.exists(Paths.get("input/" + i.getFileName() + ".txt")))
                     .sorted()
                     .toList();

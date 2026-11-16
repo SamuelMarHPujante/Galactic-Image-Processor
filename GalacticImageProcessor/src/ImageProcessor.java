@@ -1,3 +1,7 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class ImageProcessor {
@@ -7,36 +11,94 @@ public final class ImageProcessor {
     private ImageProcessor() {
     }
 
-    public static ImageResult processImage(
-            Path imagePath,
-            Path modeOutputDirectory,
-            String executionMode) {
+    public static ImageResult processImage(Path imagePath, Path modeOutputDirectory, String executionMode) {
+        long startTime = System.nanoTime();
 
-        /*
-         * TODO 1: save the start time with System.nanoTime().
-         * TODO 2: print a START message containing the thread name and file.
-         * TODO 3: read the image with ImageIO.read().
-         * TODO 4: load its metadata with ImageMetadata.readForImage().
-         * TODO 5: apply grayscale(), blur() and detectEdges().
-         * TODO 6: create grayScale, blur and edge with
-         *         Files.createDirectories().
-         * TODO 7: obtain the original base name without its extension.
-         * TODO 8: write originalName_grayScale.png,
-         *         originalName_blur.png and originalName_edge.png.
-         * TODO 9: create a new ImageResult by passing every value in exactly
-         *         the order declared in ImageResult.java. Records are
-         *         immutable, so all values are supplied to the constructor.
-         *         Store executionMode, metadata and the three output paths.
-         * TODO 10: print a DONE message with the elapsed time.
-         * TODO 11: return a successful ImageResult created with
-         *          new ImageResult(...).
-         * TODO 12: catch IOException and return a new failed ImageResult.
-         * TODO 13: catch InterruptedException, restore interruption and
-         *          return a cancelled ImageResult.
-         */
+        try {
+            String fileName = imagePath.getFileName().toString();
+            String threadName = Thread.currentThread().getName();
+            System.out.println("[" + threadName + "] START " + fileName);
 
-        throw new UnsupportedOperationException(
-                "Complete ImageProcessor.processImage()"
-        );
+            BufferedImage originalImage = ImageIO.read(imagePath.toFile());
+            if (originalImage == null) throw new IOException("Unsupported image or unable to read: " + imagePath);
+
+            ImageMetadata metadata = ImageMetadata.readForImage(imagePath);
+
+            BufferedImage grayImage = ImageFilters.grayscale(originalImage);
+            BufferedImage blurImage = ImageFilters.blur(originalImage, BLUR_RADIUS);
+            BufferedImage edgeImage = ImageFilters.detectEdges(originalImage);
+
+            Path grayScaleDir = modeOutputDirectory.resolve("grayScale");
+            Path blurDir = modeOutputDirectory.resolve("blur");
+            Path edgeDir = modeOutputDirectory.resolve("edge");
+
+            Files.createDirectories(grayScaleDir);
+            Files.createDirectories(blurDir);
+            Files.createDirectories(edgeDir);
+
+            int dotIndex = fileName.lastIndexOf(".");
+            String baseName = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+
+            Path grayPath = grayScaleDir.resolve(baseName + "_grayScale.png");
+            Path blurPath = blurDir.resolve(baseName + "_blur.png");
+            Path edgePath = edgeDir.resolve(baseName + "_edge.png");
+
+            boolean grayWritten = ImageIO.write(grayImage, "png", grayPath.toFile());
+            boolean blurWritten = ImageIO.write(blurImage, "png", blurPath.toFile());
+            boolean edgeWritten = ImageIO.write(edgeImage, "png", edgePath.toFile());
+
+            if (!grayWritten || !blurWritten || !edgeWritten) {
+                throw new IOException("PNG writer not available or failed to write one of the outputs.");
+            }
+
+            long elapsedMillis = (System.nanoTime() - startTime) / 1_000_000;
+            System.out.println("[" + threadName + "] DONE " + fileName + " " + elapsedMillis + " ms");
+
+            return new ImageResult(
+                    executionMode,
+                    fileName,
+                    metadata,
+                    threadName,
+                    originalImage.getWidth(),
+                    originalImage.getHeight(),
+                    elapsedMillis,
+                    true,
+                    null,
+                    grayPath.toString(),
+                    blurPath.toString(),
+                    edgePath.toString()
+            );
+        } catch (IOException error) {
+            long elapsedMillis = (System.nanoTime() - startTime) / 1_000_000;
+            String threadName = Thread.currentThread().getName();
+            String fileName = imagePath.getFileName().toString();
+            return new ImageResult(
+                    executionMode,
+                    fileName,
+                    null,
+                    threadName,
+                    0, 0,
+                    elapsedMillis,
+                    false,
+                    error.getMessage(),
+                    null, null, null
+            );
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+            long elapsedMillis = (System.nanoTime() - startTime) / 1_000_000;
+            String threadName = Thread.currentThread().getName();
+            String fileName = imagePath.getFileName().toString();
+            return new ImageResult(
+                    executionMode,
+                    fileName,
+                    null,
+                    threadName,
+                    0, 0,
+                    elapsedMillis,
+                    false,
+                    "Interrupted: " + error.getMessage(),
+                    null, null, null
+            );
+        }
     }
 }
