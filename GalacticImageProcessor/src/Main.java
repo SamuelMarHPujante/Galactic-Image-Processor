@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class Main {
@@ -21,20 +25,15 @@ public class Main {
      * comparison starts. Each mode adds twelve results, so after every mode
      * finishes it contains the 60 results used by the report.
      */
-    private static final List<ImageResult> results =
-            Collections.synchronizedList(new ArrayList<>());
+    private static final List<ImageResult> results = Collections.synchronizedList(new ArrayList<>());
 
     /*
      * This object summarizes all five execution modes. Its atomic counters are
      * reset once before the complete comparison starts and receive 60 updates.
      */
-    private static final ProcessingStatistics statistics =
-            new ProcessingStatistics();
+    private static final ProcessingStatistics statistics = new ProcessingStatistics();
 
-    private static final int POOL_SIZE = Math.max(
-            1,
-            Runtime.getRuntime().availableProcessors()
-    );
+    private static final int POOL_SIZE = Math.max(1, Runtime.getRuntime().availableProcessors());
 
     public static void main(String[] args) {
         try {
@@ -86,56 +85,64 @@ public class Main {
     }
 
     private static long runSequentially(List<Path> images) {
-        /*
-         * TODO:
-         * 1. Start the total mode timer.
-         * 2. For every path, call ImageProcessor.processImage() using
-         *    output/sequential as the mode output directory and
-         *    "Sequential" as the execution mode.
-         * 3. Add the returned ImageResult to results.
-         * 4. Call statistics.register(result).
-         * 5. Return the complete elapsed time in milliseconds.
-         */
-        return 0;
+        long startTime = System.nanoTime();
+        String executionMode = "sequential";
+        Path sequentialOutput = OUTPUT_DIRECTORY.resolve(executionMode);
+
+        for (Path image : images) {
+            ImageResult result = ImageProcessor.processImage(image, sequentialOutput, executionMode);
+            results.add(result);
+            statistics.register(result);
+        }
+        return (System.nanoTime() - startTime) / 1_000_000;
     }
 
-    private static long runWithRawThreads(List<Path> images)
-            throws InterruptedException {
+    private static long runWithRawThreads(List<Path> images) throws InterruptedException {
+        long startTime = System.nanoTime();
+        String executionMode = "raw_threads";
+        Path rawThreadsOutput = OUTPUT_DIRECTORY.resolve(executionMode);
+        List<Thread> workers = new ArrayList<>();
 
-        /*
-         * TODO:
-         * 1. Start the total mode timer.
-         * 2. Create one Thread per image and keep the Thread objects in ONE
-         *    List<Thread>. This is not the ImageResult list named results.
-         * 3. Inside each Thread: process its image using output/raw_threads
-         *    and "Raw threads", add the returned ImageResult to results and call
-         *    statistics.register(result).
-         * 4. Start every Thread and then join every Thread.
-         * 5. Only after all joins have finished, return the complete elapsed
-         *    time in milliseconds.
-         */
-        return 0;
+        int index = 1;
+        for (Path image : images) {
+            String workerName = String.format("image_worker_%02d", index++);
+            Thread worker = new Thread(() -> {
+                ImageResult result = ImageProcessor.processImage(image, rawThreadsOutput, executionMode);
+                results.add(result);
+                statistics.register(result);
+            }, workerName);
+            workers.add(worker);
+            worker.start();
+        }
+
+        for (Thread worker : workers) worker.join();
+        return (System.nanoTime() - startTime) / 1_000_000;
     }
 
-    private static long runWithExecutor(List<Path> images)
-            throws InterruptedException {
+    private static long runWithExecutor(List<Path> images) throws InterruptedException {
+        long startTime = System.nanoTime();
+        String executionMode = "executor";
+        Path executorOutput = OUTPUT_DIRECTORY.resolve(executionMode);
+        ExecutorService executor = Executors.newFixedThreadPool(POOL_SIZE);
 
-        /*
-         * TODO:
-         * 1. Start the total mode timer.
-         * 2. Create a fixed pool containing POOL_SIZE workers.
-         * 3. Submit one ImageJob per image. Pass output/executor, results and
-         *    statistics to every ImageJob constructor.
-         * 4. Call shutdown() and awaitTermination(). If necessary, use
-         *    shutdownNow() as explained in the assignment.
-         * 5. Only after the executor has terminated, return the complete
-         *    elapsed time in milliseconds.
-         */
-        return 0;
+        for (Path image : images) {
+            executor.submit(new ImageJob(image, executorOutput, results, statistics));
+        }
+        executor.shutdown();
+
+        try {
+            if (!executor.awaitTermination(30, TimeUnit.MINUTES)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException error) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+            throw error;
+        }
+        return (System.nanoTime() - startTime) / 1_000_000;
     }
 
-    private static long runWithCallables(List<Path> images)
-            throws InterruptedException {
+    private static long runWithCallables(List<Path> images) throws InterruptedException {
 
         /*
          * TODO:
@@ -182,5 +189,8 @@ public class Main {
          * Main calls this method only once, before starting the sequential
          * mode. It must not be called between any execution modes.
          */
+
+        results.clear();
+        statistics.reset();
     }
 }

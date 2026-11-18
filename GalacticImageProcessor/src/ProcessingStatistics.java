@@ -8,39 +8,26 @@ public class ProcessingStatistics {
     private final AtomicLong accumulatedTaskTime = new AtomicLong();
 
     public void register(ImageResult result) {
-        /*
-         * TODO:
-         * 1. Do not synchronize this method. Use the atomic operations supplied
-         *    by AtomicInteger and AtomicLong.
-         * 2. ImageResult is a record. Read its components with the automatic
-         *    accessors, which have the same names as the components. If
-         *    result.successful() is true, call incrementAndGet() on
-         *    completedImages; otherwise call it on failedImages.
-         * 3. Add result.elapsedMilliseconds() with addAndGet(). Do not write
-         *    getSuccessful() or getElapsedMilliseconds().
-         */
+        if (result.successful()) completedImages.incrementAndGet();
+        else failedImages.incrementAndGet();
+        accumulatedTaskTime.addAndGet(result.elapsedMilliseconds());
     }
 
     public void reset() {
-        /*
-         * TODO: call set(0) on the three atomic objects. Main calls reset()
-         * only once, before starting the complete comparison of the five
-         * execution modes.
-         */
+        completedImages.set(0);
+        failedImages.set(0);
+        accumulatedTaskTime.set(0);
     }
 
     public int getCompletedImages() {
-        // TODO: return the current atomic value with get().
-        return 0;
+        return completedImages.get();
     }
 
     public int getFailedImages() {
-        // TODO: return the current atomic value with get().
-        return 0;
+        return failedImages.get();
     }
 
     public long getAccumulatedTaskTime() {
-        // TODO: return the current atomic value with get().
-        return 0;
+        return accumulatedTaskTime.get();
     }
 }
