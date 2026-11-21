@@ -184,12 +184,6 @@ public class Main {
     }
 
     private static void resetSharedData() {
-        /*
-         * TODO: clear results and call statistics.reset().
-         * Main calls this method only once, before starting the sequential
-         * mode. It must not be called between any execution modes.
-         */
-
         results.clear();
         statistics.reset();
     }
